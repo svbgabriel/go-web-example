@@ -19,11 +19,16 @@ var db, err = sql.Open("mysql", "go:go@/go-web?charset=utf8")
 
 func main() {
 
-    smtm, err := db.Prepare("INSERT INTO posts(title, body) values(?,?)")
+    rows, err := db.Query("SELECT * FROM posts")
     checkErr(err)
 
-    _, err = smtm.Exec("My First Post", "My First Content")
-    checkErr(err)
+    var items []Post
+
+    for rows.Next() {
+        post := Post{}
+        rows.Scan(&post.Id, &post.Title, &post.Body)
+        items = append(items, post)
+    }
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 
